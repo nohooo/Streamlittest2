@@ -99,7 +99,7 @@ else:
 st.title('都区内配車数推移')
 
 # 期間選択
-period_options = {'6ヶ月':6, '12ヶ月':12, '25ヶ月（全期間）':26}
+period_options = {'6ヶ月':6, '12ヶ月':12, '26ヶ月（全期間）':26}
 selected_period_label = st.selectbox('期間を選択', list(period_options.keys()), index=2)
 selected_period = period_options[selected_period_label]
 
