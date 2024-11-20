@@ -76,19 +76,20 @@ st.title('都心グループ別配車数推移')
 # 注記
 st.write("※東京交通新聞社による調査記事より抜粋（直近26ヶ月）")
 st.write("※2024年6月東都タクシー掲載データなし")
-
-# 月範囲の選択
-months = df['month'].tolist()
-start_month, end_month = st.select_slider('表示する期間を選択してください', options=months, value=(months[0], months[-1]))
-
-# 選択された月範囲に基づいてデータをフィルタリング
-filtered_df = df[(df['month'] >= start_month) & (df['month'] <= end_month)]
+# 期間選択
+period_options1 = {'6ヶ月':6, '12ヶ月':12, '26ヶ月（全期間）':26}
+selected_period_label1 = st.selectbox('期間を選択', list(period_options1.keys()), index=2)
+selected_period1 = period_options1[selected_period_label1]
 
 # 会社選択
 selected_companies = st.multiselect('表示する会社を選択してください', options=list(company_colors.keys()), default=list(company_colors.keys()))
 
+# 選択した期間のデータをフィルタリング
+filtered_dispatch_df1 = df_dispatch.tail(selected_period1)
+
 # グラフの表示
 if selected_companies:
+    px.line(filtered_dispatch_df1, x='month', y=y_column)
     fig = px.line(filtered_df, x='month', y=selected_companies, color_discrete_map=company_colors)
     fig.update_layout(yaxis_title='配車数 (万)')
     st.plotly_chart(fig)
