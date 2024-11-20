@@ -74,7 +74,7 @@ company_colors = dict(日本交通='#FF6B6B', 東京無線='#4ECDC4', 国際自�
 st.title('都心グループ別配車数推移')
 
 # 注記
-st.write("※東京交通新聞社による調査記事より抜粋（直近25ヶ月）")
+st.write("※東京交通新聞社による調査記事より抜粋（直近26ヶ月）")
 st.write("※2024年6月東都タクシー掲載データなし")
 
 # 月範囲の選択
@@ -99,7 +99,7 @@ else:
 st.title('都区内配車数推移')
 
 # 期間選択
-period_options = {'6ヶ月':6, '12ヶ月':12, '25ヶ月（全期間）':25}
+period_options = {'6ヶ月':6, '12ヶ月':12, '25ヶ月（全期間）':26}
 selected_period_label = st.selectbox('期間を選択', list(period_options.keys()), index=2)
 selected_period = period_options[selected_period_label]
 
