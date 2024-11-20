@@ -66,66 +66,140 @@ dispatch_data = [
 df_dispatch = pd.DataFrame(dispatch_data)
 
 # 色設定
-company_colors = dict(日本交通='#FF6B6B', 東京無線='#4ECDC4', 国際自動車='#45B7D1', 帝都自動車交通='#FFA07A',
-                      大和自動車交通='#98D8C8', 荏原交通='#AED581', グリーンキャブ='#81C784', 東都タクシー='#64B5F6',
-                      私鉄共同無線='#BA68C8', 東個協='#A1887F', 日個連都営協='#90A4AE')
+company_colors = {
+    '日本交通': '#FF6B6B',
+    '東京無線': '#4ECDC4',
+    '国際自動車': '#45B7D1',
+    '帝都自動車交通': '#FFA07A',
+    '大和自動車交通': '#98D8C8',
+    '荏原交通': '#AED581',
+    'グリーンキャブ': '#81C784',
+    '東都タクシー': '#64B5F6',
+    '私鉄共同無線': '#BA68C8',
+    '東個協': '#A1887F',
+    '日個連都営協': '#90A4AE'
+}
 
 # ストリームリットアプリケーション
-st.title('都心グループ別配車数推移')
+st.title('都心配車数推移ダッシュボード')
 
 # 注記
-st.write("※東京交通新聞社による調査記事より抜粋（直近26ヶ月）")
-st.write("※2024年6月東都タクシー掲載データなし")
+st.markdown("""
+- ※東京交通新聞社による調査記事より抜粋（直近23ヶ月）
+- ※2024年6月東都タクシー掲載データなし
+""")
+
+# 期間選択のオプション
+period_options = {
+    '6ヶ月': 6,
+    '12ヶ月': 12,
+    '全期間': None  # Noneを全期間の意味として使用
+}
+
+# ### グラフ1: 都区内グループ別配車数推移 ###
+
+st.header('都区内グループ別配車数推移')
+
 # 期間選択
-period_options1 = {'6ヶ月':6, '12ヶ月':12, '26ヶ月（全期間）':26}
-selected_period_label1 = st.selectbox('期間を選択してください', list(period_options1.keys()), index=2)
-selected_period1 = period_options1[selected_period_label1]
+selected_period_label_1 = st.selectbox(
+    '表示する期間を選択してください (グループ別配車数)',
+    options=list(period_options.keys()),
+    index=2  # デフォルトを「全期間」に設定
+)
+
+selected_period_1 = period_options[selected_period_label_1]
+
+# データのフィルタリング
+if selected_period_1:
+    filtered_df_1 = df.tail(selected_period_1)
+else:
+    filtered_df_1 = df
 
 # 会社選択
-selected_companies = st.multiselect('表示する会社を選択してください', options=list(company_colors.keys()), default=list(company_colors.keys()))
-
-# 選択した期間のデータをフィルタリング
-filtered_dispatch_df1 = df_dispatch.tail(selected_period1)
+selected_companies_1 = st.multiselect(
+    '表示する会社を選択してください (グループ別配車数)',
+    options=list(company_colors.keys()),
+    default=list(company_colors.keys())
+)
 
 # グラフの表示
-if selected_companies:
-    px.line(filtered_dispatch_df1, x='month1', y=y_column)
-    fig = px.line(filtered_df, x='month1', y=selected_companies, color_discrete_map=company_colors)
-    fig.update_layout(yaxis_title='配車数 (万)')
-    st.plotly_chart(fig)
+if selected_companies_1:
+    fig1 = px.line(
+        filtered_df_1,
+        x='month',
+        y=selected_companies_1,
+        color_discrete_map=company_colors
+    )
+    fig1.update_layout(
+        yaxis_title='配車数 (万)',
+        xaxis_title='月',
+        legend_title='会社名'
+    )
+    st.plotly_chart(fig1, use_container_width=True)
 else:
-    st.write("表示する会社を選択してください")
+    st.warning("表示する会社を選択してください。")
 
-# 都区内配車数推移
-st.title('都区内配車数推移')
+# ### グラフ2: 都区内配車数推移 ###
+
+st.header('都区内配車数推移')
 
 # 期間選択
-period_options = {'6ヶ月':6, '12ヶ月':12, '26ヶ月（全期間）':26}
-selected_period_label = st.selectbox('期間を選択してください', list(period_options.keys()), index=2)
-selected_period = period_options[selected_period_label]
+selected_period_label_2 = st.selectbox(
+    '表示する期間を選択してください (配車数推移)',
+    options=list(period_options.keys()),
+    index=2  # デフォルトを「全期間」に設定
+)
+
+selected_period_2 = period_options[selected_period_label_2]
 
 # 指標選択
-metric_options = {'配車数合計':'total', 'コロナ前比':'covidRatio', '前年比':'yearOnYearRatio', '台当たり':'perCar'}
-selected_metric_label = st.selectbox('指標を選択', list(metric_options.keys()))
+metric_options = {
+    '配車数合計': 'total',
+    'コロナ前比': 'covidRatio',
+    '前年比': 'yearOnYearRatio',
+    '台当たり': 'perCar'
+}
+selected_metric_label = st.selectbox(
+    '指標を選択してください (配車数推移)',
+    options=list(metric_options.keys())
+)
 selected_metric = metric_options[selected_metric_label]
 
-# 選択した期間のデータをフィルタリング
-filtered_dispatch_df = df_dispatch.tail(selected_period)
+# データのフィルタリング
+if selected_period_2:
+    filtered_dispatch_df = df_dispatch.tail(selected_period_2)
+else:
+    filtered_dispatch_df = df_dispatch
 
 # データの準備
-metric_labels = {'total':'配車数合計 (万)', 'covidRatio':'コロナ前比 (%)', 'yearOnYearRatio':'前年比 (%)', 'perCar':'台当たり'}
+metric_labels = {
+    'total': '配車数合計 (万)',
+    'covidRatio': 'コロナ前比 (%)',
+    'yearOnYearRatio': '前年比 (%)',
+    'perCar': '台当たり'
+}
+
 if selected_metric == 'total':
+    filtered_dispatch_df = filtered_dispatch_df.copy()  # SettingWithCopyWarningを避けるためにコピーを作成
     filtered_dispatch_df['total_display'] = filtered_dispatch_df['total'] / 10000  # 万単位に変換
     y_column = 'total_display'
+    hover_template = '%{x}<br>%{y:.1f}万'
 else:
     y_column = selected_metric
+    hover_template = '%{x}<br>%{y}'
 
 # グラフの描画
-fig2 = px.line(filtered_dispatch_df, x='month', y=y_column)
+fig2 = px.line(
+    filtered_dispatch_df,
+    x='month',
+    y=y_column,
+    markers=True,
+    title=metric_labels[selected_metric]
+)
 fig2.update_yaxes(title_text=metric_labels[selected_metric])
-if selected_metric == 'total':
-    fig2.update_traces(hovertemplate='%{x}<br>%{y:.1f}万')
-else:
-    fig2.update_traces(hovertemplate='%{x}<br>%{y}')
-
-st.plotly_chart(fig2)
+fig2.update_traces(hovertemplate=hover_template, line=dict(color='#1f77b4'))
+fig2.update_layout(
+    xaxis_title='月',
+    legend_title='指標'
+)
+st.plotly_chart(fig2, use_container_width=True)
